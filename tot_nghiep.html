@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graduation Protocol Activated: Nong Van Thang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Exo+2:wght@900&display=swap&subset=vietnamese" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #0057FF;
+            --glow-blue: rgba(0, 87, 255, 0.75);
+            --dark-bg: #01041a;
+            --text-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            overflow-x: hidden;
+            overflow-y: scroll; /* Allow scrolling to see effects */
+        }
+
+        .font-orbitron {
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        /* --- Loading Screen --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out, visibility 1s ease-out;
+            opacity: 1;
+            visibility: visible;
+        }
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .boot-sequence {
+            font-family: 'Exo 2', monospace;
+            color: #00ff41;
+            text-align: left;
+            width: 90%;
+            max-width: 600px;
+        }
+        .boot-sequence p {
+            margin: 0.5rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .boot-sequence p:after {
+            content: '▋';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* --- Main Content Styling --- */
+        #main-content {
+            opacity: 0;
+            transition: opacity 1s ease-in 0.5s;
+        }
+        body.loaded #main-content {
+            opacity: 1;
+        }
+
+        /* Electric Border Effect */
+        .electric-border {
+            border: 2px solid var(--primary-blue);
+            animation: pulse-border 4s ease-in-out infinite;
+            box-shadow: 0 0 20px var(--glow-blue);
+        }
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 15px var(--glow-blue);
+                border-color: var(--primary-blue);
+            }
+            50% {
+                box-shadow: 0 0 30px var(--glow-blue);
+                border-color: #87CEFA; /* LightSkyBlue for a brighter pulse */
+            }
+            100% {
+                box-shadow: 0 0 15px var(--glow-blue);
+                border-color: var(--primary-blue);
+            }
+        }
+        
+        /* Name Hover Effect */
+        .name-glitch {
+            position: relative;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .name-glitch:hover {
+            transform: skew(-5deg);
+        }
+        .name-glitch::before, .name-glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            clip-path: inset(50% 0 50% 0);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .name-glitch:hover::before {
+            left: -2px;
+            text-shadow: -2px 0 #ff0055;
+            animation: glitch-anim 1s infinite linear alternate-reverse;
+            opacity: 1;
+        }
+        .name-glitch:hover::after {
+            left: 2px;
+            text-shadow: 2px 0 #00ff41;
+            animation: glitch-anim 1.5s infinite linear alternate-reverse;
+            opacity: 1;
+        }
+        @keyframes glitch-anim {
+            0% { clip-path: inset(30% 0 65% 0); }
+            25% { clip-path: inset(10% 0 80% 0); }
+            50% { clip-path: inset(70% 0 5% 0); }
+            75% { clip-path: inset(45% 0 50% 0); }
+            100% { clip-path: inset(20% 0 75% 0); }
+        }
+
+        /* Warning Light */
+        .warning-light {
+            width: 12px;
+            height: 12px;
+            background-color: #ffc107;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffc107, 0 0 20px #ffc107;
+            animation: pulse-warning 1.5s infinite;
+        }
+        @keyframes pulse-warning {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        
+        /* Background Canvas */
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0;
+            transform: scale(1.1);
+            transition: opacity 1.5s ease-in, transform 1s ease-out;
+        }
+        body.loaded #background-canvas {
+            opacity: 0.3;
+            transform: scale(1);
+        }
+
+        /* --- Tech Diagrams Styling --- */
+        .diagram-container {
+            border: 1px solid rgba(0, 87, 255, 0.3);
+            background: rgba(0, 87, 255, 0.05);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            backdrop-filter: blur(2px);
+            height: 200px; /* Fixed height for consistency */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .diagram-container svg {
+            width: 100%;
+            height: 100%;
+        }
+        .diagram-title {
+            font-family: 'Exo 2', sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .animated-path {
+            stroke-dasharray: 500;
+            stroke-dashoffset: 500;
+            animation: draw-path 6s ease-in-out infinite alternate;
+        }
+        @keyframes draw-path {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+
+    <!-- Loader -->
+    <div id="loader">
+        <div class="boot-sequence">
+            <!-- Messages will be injected here by JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Background -->
+    <canvas id="background-canvas"></canvas>
+
+    <!-- Main Content -->
+    <main id="main-content" class="relative z-10 max-w-4xl mx-auto min-h-screen flex flex-col justify-center items-center text-center">
+        <div class="electric-border p-8 md:p-12 rounded-2xl bg-black bg-opacity-50 backdrop-blur-sm w-full relative">
+            
+            <!-- Decorative Tech Icons -->
+            <div class="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl z-0">
+                <!-- Robot Arm Icon (Top Left) -->
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="absolute top-4 left-4 w-24 h-24 text-sky-800/60 opacity-40 -rotate-12" stroke-width="1">
+                    <path d="M16 12H18M12 22L14 18M18 6L16 10M14 18L10 16L16 10L14 18Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 13.5L4 12L5.5 6L10 8L9 13.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 8L16 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5.5 6L2 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+
+                <!-- PLC Icon (Top Right) -->
+                 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" class="absolute top-2 right-6 w-20 h-20 text-sky-800/60 opacity-40 rotate-12" stroke-width="2" stroke="currentColor" fill="none">
+                    <path d="M12.2,51.82V12.18A3.11,3.11,0,0,1,15.31,9.07H48.69a3.11,3.11,0,0,1,3.11,3.11V51.82a3.11,3.11,0,0,1-3.11,3.11H15.31A3.11,3.11,0,0,1,12.2,51.82Z"/>
+                    <rect x="20.4" y="16.57" width="23.2" height="6.89"/>
+                    <rect x="20.4" y="38.74" width="7.82" height="5.42"/>
+                    <rect x="35.77" y="38.74" width="7.82" height="5.42"/>
+                </svg>
+
+                <!-- Microcontroller Icon (Bottom Right) -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="absolute bottom-6 right-6 w-20 h-20 text-sky-800/60 opacity-40 rotate-12" stroke-width="1" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 21v-1.5M15.75 3v1.5M19.5 8.25h1.5m-18 0h1.5M19.5 12h1.5m-18 0h1.5m15 3.75h1.5m-18 0h1.5M15.75 21v-1.5m-4.5-16.5v1.5m0 15V21" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 7.5h-9a3 3 0 00-3 3v3a3 3 0 003 3h9a3 3 0 003-3v-3a3 3 0 00-3-3z" />
+                </svg>
+
+                <!-- Code Snippet (Bottom Left) -->
+                <pre class="absolute bottom-6 left-4 text-sky-800/60 opacity-40 text-[10px] font-mono -rotate-6 leading-tight"><code>// PID Control Loop
+while(system.online()) {
+  error = setpoint - sensor.read();
+  integral += error * dt;
+  derivative = (error - prev_error) / dt;
+  output = Kp*error + Ki*integral + Kd*derivative;
+  actuator.write(output);
+  prev_error = error;
+  delay(10);
+}</code></pre>
+            </div>
+
+            <div class="flex justify-center items-center gap-3 mb-6 relative">
+                <div class="warning-light"></div>
+                <p class="font-orbitron text-sm uppercase tracking-widest text-amber-300">Graduation Protocol: Activated</p>
+                <div class="warning-light"></div>
+            </div>
+            
+            <!-- Avatar -->
+            <div class="mx-auto rounded-full border-4 border-blue-500/50 shadow-lg shadow-blue-500/20 mb-6 h-32 w-32 md:h-40 md:w-40 flex items-center justify-center bg-black bg-opacity-20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 md:h-24 md:w-24 text-sky-300" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3.5a1 1 0 00.002 1.788l7 3.5a1 1 0 00.786 0l7-3.5a1 1 0 00.002-1.788l-7-3.5zM3 9.333V14a1 1 0 001 1h12a1 1 0 001-1V9.333l-7 3.5a1 1 0 01-.786 0l-7-3.5z" />
+                  <path d="M17 16a1 1 0 001-1v-2.133l-2 1V15a1 1 0 001 1z" />
+                </svg>
+            </div>
+            
+            <h1 class="font-orbitron text-3xl sm:text-4xl lg:text-5xl font-black tracking-wider uppercase" style="text-shadow: 0 0 15px var(--glow-blue);">
+                Graduation Ceremony
+            </h1>
+            <h2 class="font-orbitron text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-2 mb-4">
+                <span class="name-glitch" data-text="NÔNG VĂN THẮNG">NÔNG VĂN THẮNG</span>
+            </h2>
+            <p class="text-base sm:text-lg text-slate-300 mb-8">
+                Major: Control Engineering and Automation – Hanoi University of Science and Technology
+            </p>
+
+            <div class="my-10 border-t-2 border-dashed border-sky-800/50 w-1/2 mx-auto"></div>
+
+            <p class="text-lg sm:text-xl md:text-2xl font-semibold text-white leading-relaxed max-w-2xl mx-auto mb-10">
+                “You are an indispensable part of this journey. Come and reach this important milestone with me!”
+            </p>
+            
+            <!-- Technical Diagrams Section -->
+            <div class="my-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-slate-400">
+                <!-- PID Controller Response -->
+                <div class="diagram-container">
+                    <div class="diagram-title">PID Step Response</div>
+                    <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet">
+                        <!-- Axes -->
+                        <path d="M5 55 L5 5 L95 5" stroke="#4A5568" stroke-width="0.5" fill="none"/>
+                        <!-- Setpoint Line -->
+                        <path d="M5 15 L95 15" stroke="#FBBF24" stroke-width="0.5" stroke-dasharray="2,2" fill="none"/>
+                        <!-- Response Curve -->
+                        <path class="animated-path" d="M5,55 C 20,55 30,10 45,10 C 60,10 65,20 80,15" stroke="#38BDF8" stroke-width="1.5" fill="none"/>
+                        <text x="80" y="12" font-size="3" fill="#FBBF24">Setpoint</text>
+                        <text x="50" y="59" font-size="3" fill="#A0AEC0">Time</text>
+                    </svg>
+                </div>
+
+                <!-- Nyquist Plot -->
+                <div class="diagram-container">
+                    <div class="diagram-title">Nyquist Stability</div>
+                     <svg viewBox="-50 -50 100 100" preserveAspectRatio="xMidYMid meet">
+                        <!-- Axes -->
+                        <path d="M-45 0 L45 0 M0 -45 L0 45" stroke="#4A5568" stroke-width="0.5" fill="none"/>
+                        <!-- Critical Point -->
+                        <circle cx="-20" cy="0" r="1.5" fill="#EF4444"/>
+                        <!-- Nyquist Curve -->
+                        <path class="animated-path" d="M40,0 C40,-40 -20,-30 -20,0 C-20,30 40,40 40,0 Z" stroke="#38BDF8" stroke-width="1.5" fill="none" transform="rotate(180 -20 0)"/>
+                        <text x="-25" y="-3" font-size="5" fill="#EF4444">-1</text>
+                        <text x="40" y="-3" font-size="5" fill="#A0AEC0">Re</text>
+                        <text x="2" y="-40" font-size="5" fill="#A0AEC0">Im</text>
+                    </svg>
+                </div>
+
+                <!-- Electrical Waves -->
+                <div class="diagram-container">
+                    <div class="diagram-title">Signal Waveforms</div>
+                    <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet">
+                        <!-- Grid -->
+                        <path d="M5 30 L95 30 M50 5 L50 55" stroke="#4A5568" stroke-width="0.5" fill="none"/>
+                        <!-- Sine Wave -->
+                        <path class="animated-path" d="M5,30 C 17.5,5 32.5,55 50,30 S 67.5,5 80,30" stroke="#38BDF8" stroke-width="1.5" fill="none"/>
+                        <!-- Square Wave -->
+                        <path d="M5,10 L25,10 L25,50 L45,50 L45,10 L65,10 L65,50 L85,50 L85,10" stroke="#818CF8" stroke-width="1" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="font-orbitron text-2xl sm:text-3xl font-bold bg-white/10 text-sky-300 py-3 px-6 rounded-lg inline-flex items-center justify-center gap-4 border-2 border-sky-500/50">
+                <svg class="w-8 h-8 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.25 2.25v2.25a2.25 2.25 0 002.25 2.25h3.86m-9.75-12h3.86a2.25 2.25 0 002.25-2.25V4.5a2.25 2.25 0 012.25-2.25h3.86m-16.5 4.5h16.5" />
+                </svg>
+                <span>9:30 | 04.10.2025</span>
+                <svg class="w-8 h-8 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.25 2.25v2.25a2.25 2.25 0 002.25 2.25h3.86m-9.75-12h3.86a2.25 2.25 0 002.25-2.25V4.5a2.25 2.25 0 012.25-2.25h3.86m-16.5 4.5h16.5" />
+                </svg>
+            </div>
+            
+            <p class="mt-6 text-slate-400 text-lg">
+                <span class="font-semibold">Location:</span> Hall C2, Hanoi University of Science and Technology
+            </p>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Boot Sequence ---
+            const loader = document.getElementById('loader');
+            const bootContainer = document.querySelector('.boot-sequence');
+            const messages = [
+                { text: '!!! WARNING: UNAUTHORIZED SYSTEM ACCESS DETECTED !!!', color: '#ff0055' },
+                { text: '>> Breaching security protocols...', color: '#ff0055' },
+                { text: '>> Override successful. Rerouting system core...', color: '#ffc107' },
+                { text: 'INITIALIZING SYSTEM...', color: '#00ff41' },
+                { text: 'LOADING GRADUATION PROTOCOL...', color: '#00ff41' },
+                { text: 'CALIBRATING TIMELINE: 2021-2025...', color: '#00ff41' },
+                { text: 'COMPILING 4 YEARS OF DATA... COMPLETE.', color: '#00ff41' },
+                { text: 'TARGET: NONG VAN THANG', color: '#00ff41' },
+                { text: 'FIELD: CONTROL ENGINEERING AND AUTOMATION', color: '#00ff41' },
+                { text: 'STATUS: GRADUATION IMMINENT.', color: '#00ff41' },
+                { text: 'ACTIVATING INVITATION SEQUENCE...', color: '#00ff41' },
+                { text: 'SYSTEM ONLINE.', color: '#00ff41' }
+            ];
+            let messageIndex = 0;
+
+            function typeMessage() {
+                if (messageIndex < messages.length) {
+                    const p = document.createElement('p');
+                    const messageObj = messages[messageIndex];
+                    p.style.color = messageObj.color;
+                    bootContainer.appendChild(p);
+                    let charIndex = 0;
+                    const messageText = messageObj.text;
+                    const interval = setInterval(() => {
+                        if (charIndex < messageText.length) {
+                            p.textContent += messageText.charAt(charIndex);
+                            charIndex++;
+                        } else {
+                            clearInterval(interval);
+                            messageIndex++;
+                            typeMessage();
+                        }
+                    }, 50);
+                } else {
+                    setTimeout(startMainContent, 500);
+                }
+            }
+
+            function startMainContent() {
+                loader.classList.add('hidden');
+                document.body.classList.add('loaded');
+            }
+
+            typeMessage();
+
+            // --- Background Canvas Effect ---
+            const canvas = document.getElementById('background-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let circuits = [];
+            const circuitCount = 50;
+
+            class Circuit {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.life = 0;
+                    this.maxLife = Math.random() * 100 + 50;
+                    this.speed = Math.random() * 2 + 1;
+                    this.angle = Math.floor(Math.random() * 4) * (Math.PI / 2);
+                    this.turnChance = 0.1;
+                    this.color = `rgba(0, 87, 255, ${Math.random() * 0.5 + 0.2})`;
+                }
+                
+                update() {
+                    this.life++;
+                    if(this.life > this.maxLife) {
+                        this.reset();
+                    }
+
+                    const prevX = this.x;
+                    const prevY = this.y;
+
+                    this.x += Math.cos(this.angle) * this.speed;
+                    this.y += Math.sin(this.angle) * this.speed;
+
+                    ctx.beginPath();
+                    ctx.moveTo(prevX, prevY);
+                    ctx.lineTo(this.x, this.y);
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+
+                    if(Math.random() < this.turnChance) {
+                        this.angle += (Math.random() > 0.5 ? 1 : -1) * (Math.PI / 2);
+                    }
+                    
+                    if(this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                        this.reset();
+                    }
+                }
+
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.life = 0;
+                    this.maxLife = Math.random() * 100 + 50;
+                    this.angle = Math.floor(Math.random() * 4) * (Math.PI / 2);
+                }
+            }
+
+            function initCircuits() {
+                circuits = [];
+                for(let i = 0; i < circuitCount; i++) {
+                    circuits.push(new Circuit(Math.random() * canvas.width, Math.random() * canvas.height));
+                }
+            }
+
+            function animateBackground() {
+                // Fading effect
+                ctx.fillStyle = 'rgba(1, 4, 26, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                circuits.forEach(c => c.update());
+                requestAnimationFrame(animateBackground);
+            }
+
+            initCircuits();
+            animateBackground();
+
+            // --- Responsive Canvas ---
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                initCircuits();
+            });
+            
+            // --- Scroll Parallax Effect ---
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                canvas.style.transform = `translateY(${scrollY * 0.5}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
+
